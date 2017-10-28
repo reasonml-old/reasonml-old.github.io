@@ -3,6 +3,7 @@ import Helmet from "react-helmet"
 
 import Section from '../components/Section'
 import GuideSidebar, {constructTree, fixPath} from '../components/GuideSidebar'
+import {scale, rhythm, headerFontFamily} from '../utils/typography'
 import {accent, gray, dividerLine} from '../utils/colors'
 import editIcon from '../../static/edit-icon.svg'
 
@@ -11,6 +12,14 @@ import Header from '../components/Header'
 
 require('../../syntax-highlighting/xcode.css')
 require('./guide.css')
+
+const oldSyntax = () => {
+  let url = window.location;
+  url = url.toString();
+  url = url.replace(/reasonml-old.github.io/, "reasonml.github.io")
+  // url = url.replace(/localhost:8000/,"reasonml.github.io")
+  window.location = url;
+};
 
 const editUrl = path =>
   `https://github.com/reasonml/reasonml.github.io/edit/source/src/pages/${path}`
@@ -74,7 +83,12 @@ export default class Guide extends React.Component {
       contents = <div className="markdown-content" dangerouslySetInnerHTML={{__html: html}} />
       edit = editUrl(relativePath)
     }
-    return <div css={styles.main}>
+    let syntax = relativePath.indexOf('guide/') === 0 ?
+    <a css={[styles.syntax, {display: 'flex'}]} onClick={oldSyntax} href="#">
+      Looking for the new (version 3) syntax? Click here
+    </a> : null;
+    return <div css={[styles.main, syntax ? styles.extraPadding : null]}>
+      {syntax}
       <h2 css={styles.title}>
         {title}
         <Link css={styles.editLink} to={edit}>
@@ -118,6 +132,9 @@ export default class Guide extends React.Component {
   }
 }
 
+const phablet = '@media(max-width: 800px)'
+const phone = '@media(max-width: 500px)'
+
 const styles = {
   editLink: {
     fontSize: '14px',
@@ -147,6 +164,9 @@ const styles = {
     padding: '2em',
     minWidth: 0,
   },
+  extraPadding: {
+    paddingTop: '2.5em',
+  },
   editIcon: {
     marginBottom: 0,
     '@media(min-width: 800px)': {
@@ -162,7 +182,28 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: 32
-  }
+  },
+  syntax: {
+    textDecoration: 'none',
+    color: 'white',
+    ...scale(0.2),
+    [phablet]: {
+      padding: `${rhythm(1/4)}`
+    },
+    [phone]: {
+      ...scale(-0.3),
+    },
+    backgroundColor: '#bb5144',
+    display: 'block',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: '2em',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
 }
 
 export const pageQuery = graphql`
