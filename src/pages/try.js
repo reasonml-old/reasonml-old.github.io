@@ -23,6 +23,14 @@ if (typeof navigator !== 'undefined') {
   )
 }
 
+const oldSyntax = () => {
+  let url = window.location;
+  url = url.toString();
+  url = url.replace(/reasonml-old.github.io/, "reasonml.github.io")
+  // url = url.replace(/localhost:8000/,"reasonml.github.io")
+  window.location = url;
+};
+
 const examples = [{
   name: 'Tree sum',
   code:
@@ -113,17 +121,17 @@ let () = {
 	  	 |> Js.Option.andThen ((fun p => Js.Dict.get p "name") [@bs])
 	  	 |> Js.Option.andThen ((fun json => Js.Json.decodeObject json) [@bs])
   		 |> Js.Option.getExn;
-  
+
   let firstName =
   	Js.Dict.get name "first"
   	|> Js.Option.andThen ((fun json => Js.Json.decodeString json) [@bs])
   	|> Js.Option.getExn;
-  
+
   let lastName =
   	Js.Dict.get name "last"
   	|> Js.Option.andThen ((fun json => Js.Json.decodeString json) [@bs])
   	|> Js.Option.getExn;
-  
+
   Js.log {j|Hello, $firstName $lastName|j};
 }`
 }, {
@@ -169,7 +177,7 @@ Array.init 42 (fun _ => random_gaussian ())
     </body>
   </html>
   |};
-  
+
   let () =
     input |> Js.String.match_ [%re "/<p\\b[^>]*>(.*?)<\\/p>/gi"]
       |> fun
@@ -228,7 +236,7 @@ const retrieve = () => {
   }
 
   // WTH? There's some retarded automatic semicolon insertion going on, actively causing bugs. Hence the parens. Wonderful!
-  return ( 
+  return (
     fromQueryParam('reason') ||
     fromQueryParam('ocaml') ||
     fromLocalStorage() ||
@@ -474,7 +482,7 @@ export default class Try extends Component {
     const res = JSON.parse(window.ocaml.compile(code));
     console.error = _consoleError;
     return [res, warning || null];
-  } 
+  }
 
   tryCompiling = debounce((reason, ocaml) => {
     try {
@@ -541,7 +549,7 @@ export default class Try extends Component {
     input.select();
     document.execCommand('copy');
   }
- 
+
   render() {
     const {
       reason,
@@ -568,11 +576,20 @@ export default class Try extends Component {
           <Header inverted />
         </div>
         <div css={styles.toolbar}>
-          <div css={[styles.toolbarButton, styles.exampleSelect]}>
+          <div css={[styles.toolbarButton, styles.toolbarButtonRight]}>
             <button>Examples</button>
             <ul css={styles.exampleMenu}>
               {examples.map(example => <li key={example.name} onClick={() => this.updateReason(example.code)}>{example.name}</li>)}
             </ul>
+          </div>
+          <div css={[
+              styles.toolbarButton,
+              styles.toolbarButtonRight,
+              styles.toolbarButtonFill,
+            ]}>
+            <button onClick={oldSyntax}>
+              New Syntax
+            </button>
           </div>
           <div css={styles.toolbarButton}>
             <button onClick={this.evalLatest}>Evaluate</button>
@@ -854,8 +871,7 @@ const styles = {
     }
   },
 
-  exampleSelect: {
-    marginRight: 'auto',
+  toolbarButtonRight: {
     borderRight: '1px solid #d6d4d4',
     borderLeft: 'none',
     position: 'relative',
@@ -863,6 +879,9 @@ const styles = {
     '&:hover ul': {
       display: 'block'
     }
+  },
+  toolbarButtonFill: {
+    marginRight: 'auto',
   },
 
   exampleMenu: {
